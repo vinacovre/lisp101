@@ -1,0 +1,89 @@
+
+* Aquecimento
+
+É comum o iniciante em Lisp se confundir com a sintaxe da
+linguagem. Exercite um pouco com os casos abaixo:
+
+f(3, 5, 7);     ~>   (f 3 5 7)
+
+g(h(4, 9), k(8, 7, 5));    ~>   (g (h 4 9) (k 8 7 5))
+
+m(p(8), {4,5,6,7}); ~>   (m (p 8) '(4 5 6 7))
+
+Na chamada acima, {4,5,6,7} representa uma literal de array em C, mas,
+na chamada em Lisp, deve ser substituída por uma lista.
+
+int f(int a, int b) {
+   return a * (b - a*(b + 3));
+}
+~>
+(define (f a b)
+   (* a (- b (* a (+ b 3)))))
+
+int g(int c, int d, int e) {
+   return c + d + (e - 1);
+}
+~>
+(define (g c d e)
+	(+ c d (- e 1)))
+
+
+* Funções recursivas sobre listas que retornam um valor booleano
+
+(member? 3 '(2 3 5))
+
+(member? 3 '(7 11 13))
+
+A primeira execução deve retornar #t, a segunda, #f.
+
+(define (member? x l)
+  (if (null? l)
+      #f
+      (if (equal? x (car l))
+          #t
+	  (member? x (cdr l)))))
+
+* Funções recursivas sobre listas que retornam números
+
+(length0 '(10 20 30 40 50))     ~>  5
+
+O 0 no final do nome da função é para diferenciá-la da função length que
+já existe em Racket.
+
+(define (length0 l)
+  (if (null? l)
+       0
+      (add1 (length0 (cdr l)))))
+
+Com acumulador:
+
+A fachada:
+
+(define (length1 l)
+   (length2 l 0))
+
+(define (length2 l acc)
+   (if (null? l)
+       acc
+       (length2 (cdr l) (add1 acc))))
+
+* Funções recursivas sobre listas que retornam listas
+
+(rem-first 3 '(7 5 3 8 3 9 3))          ~>   '(7 5 8 3 9 3)
+
+(define (rem-first x l)
+   (if (null? l)
+       '()
+       (if (equal? x (car l)
+           (cdr l)
+	   (cons (car l) (rem-first x (cdr l)))))))
+
+
+
+======================================
+
+Faça algumas das funções que já foram estudadas em Haskell e Prolog usando Lisp.
+Exemplos: stammer, alternate, take etc.
+
+Na aula, você receberá uma lista pequena dessas mesmas funções para fazer e
+depositar no Moodle.

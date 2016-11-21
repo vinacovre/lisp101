@@ -1,0 +1,176 @@
+
+* Lisp em Lisp
+
+É clássico em qualquer livro de Lisp, definir um novo Lisp a partir de
+um interpretador Lisp.
+
+Em resumo, algumas propriedades interessantes reveladas nesse caso:
+
+1) O parser é trivial. Não é um parser da linguagem, é o parser de
+listas. O próprio programa escrito como listas dentro de listas já é
+uma árvore sintática.
+
+Repetindo: em Lisp você não escreve strings na verdade, você escreve
+árvores (como listas). A conversão da string digitada na árvore
+(lista) é trivial.
+
+2) A interpretação da árvore-lista é uma recursão mútua de duas
+funções: eval e apply. eval é o interpretador, e o que ele faz é
+aplicar os parâmetros ao primeiro símbolo da lista (função, "special
+form" ou macro). Aplicar? Sim, com apply.
+
+Apply avalia os parâmetros e executa a função com eles. Avalia? Sim,
+com eval.
+
+Apply pode ser muito útil em programação, inclusive está presente em
+JavaScript. Veja o exemplo, para apply:
+
+(+ 3 4 5)   ~>   12
+
+(define nums '(3 4 5))
+
+(+ nums)   ~>   erro: + não funciona com lista <<<< MUITO COMUM C/ INICIANTES
+
+(apply + nums)   ~>  12
+
+
+* Explorando outros Lisps
+
+** Emacs Lisp
+
+Emacs é um editor de texto tradicional no Unix, e existe desde o tempo
+que não havia interfaces de janelas. Para implementá-lo, os
+desenvolvedores decidiram criar um interpretador Lisp próprio, hoje
+chamado Emacs Lisp. Isso permite programar o próprio editor
+facilmente, ou, ainda, criar aplicações.
+
+Acione o Emacs no seu sistema.
+
+(Legenda: C = Tecla Control, M = Tecla Alt)
+
+Digite M-x tetris <ENTER>
+
+Digite M-x doctor <ENTER>
+
+O primeiro abre um buffer com o jogo Tetris. O segundo, um programa de
+processamento de linguagem natural e inteligência artificial nos
+moldes do original Elisa.
+
+Digite C-x C-f arquivo.txt <ENTER>
+
+Isso cria um buffer novo, vinculado ao arquivo "arquivo.txt" Preencha
+o arquivo com muitas linhas, até ocupar a tela:
+
+adarqe
+req
+qfsd
+fafqe
+rfq
+...
+
+Escolha uma linha fora do centro e digite C-l. Observe.
+
+Vá até uma linha não central, escreva (recenter), posicione o cursor
+depois do parênteses que fecha a expressão, e digite C-x C-e. Observe.
+
+recenter é uma função Lisp. C-l é uma combinação de teclas associada a
+ela. Mas é possível acionar a função em qualquer lugar.
+
+Digite M-x recenter para executar a função no mini-buffer.
+(A linha mais embaixo no Emacs.)
+
+Mude para o buffer *scratch*, próprio para manipulações em Lisp. Para
+isso, digite C-x b *scratch*<ENTER>
+
+No buffer *scratch*, digite:
+(+ 2 3 (* 5 6)) C-x C-e , e observe o mini-buffer.
+
+(* 8 5) C-j
+
+Por fim, ative um REPL com M-x ielm, e um buffer de REPL aparece.
+
+C-x k mata o buffer.
+
+De volta, ao buffer *scratch* digite:
+
+(defun mymax (a b) (if (> a b) a b)) C-j
+
+(mymax 8 5) C-j
+
+(defvar mymax 500) C-j
+
+(mymax mymax 200) C-j
+
+Emacs Lisp é um Lisp-2, ou seja, ele tem dois espaços de nomes: um
+para funções e outro para variáveis. Assim, é possível que um mesmo
+nome seja usado para duas coisas diferentes em Emacs Lisp: para uma
+função e para uma variável. Não existe define em Emacs Lisp, só defun
+e defvar.
+
+Scheme é um Lisp-1, ou seja, ele só possui um espaço de nomes,
+acessível através de define.
+
+(Confira o Org-mode do Emacs! É um tipo de agenda com tarefas e muito
+mais, baseado em puro txt. Muita gente usa o Emacs só por causa dele.)
+
+** Clojure
+
+Clojure é um Lisp que roda na máquina virtual Java. Como Lisp, ele
+apresenta um design inovador. Em vez de apresentar uma sintaxe própria
+para apenas uma estrutura de dados da linguagem (listas), ele traz 4:
+listas, vetores, dicionários (maps, ou hashs), e conjuntos (sets).
+
+Todos internamente são representados com árvores-B com inúmeras
+sub-árvores. Isso dá toda diferença no desempenho.
+
+* Macros
+
+Todo Lisp possui alguma forma de macro. Na prática, macros permitem
+"estender o intepretador/compilador". É o poder de modificar a
+linguagem. Outras linguagens têm macros, inclusive C, mas nenhuma como
+Lisp, por causa da propriedade homoicônica (dados e programas têm a
+mesma sintaxe).
+
+Contudo, o pessoal do Scheme é muito chato com respeito a macros. Eles
+tentam fazer uma coisa avançada, e perdem o encanto das macros como
+acontece em Common Lisp, Emacs Lisp e Clojure. Portanto, vamos de
+Emacs Lisp:
+
+(defmacro mais10 (var)
+   (list '+ var 10))  C-j
+
+(mais10 100)   C-j
+
+(macroexpand-1 '(mais10 100))   C-j
+
+(macroexpand-1 '(mais10 abacaxi))  C-j
+
+
+Vamos analisar o que aconteceu nessa sequência de comandos.
+
+A definição da macro tem como corpo a criação de uma lista. É isso,
+você está criando uma lista que vai ser executada depois. Isso cria
+duas etapas: a substituição de (mais10 algo) pela lista definida no
+corpo da macro (chamada de expansão da macro), e a execução dessa nova
+lista criada.
+
+Na segunda linha, as duas coisas são feitas, e mais10 "parece" uma
+função.
+
+macroexpand-1 nos ajuda a ver a realidade. Ela executa só a expansão
+de macros em um nível. macroexpand expande todas as macros (pode haver
+uma macro no corpo de uma macro, então todas são expandidas por
+macroexpand, mas não por macroexpand-1).
+
+Por fim, é preciso dizer que criar listas com list é considerado chato
+pelos programadores. Daí eles criaram uma espécie de "gabarito" (um
+formulário com buracos), chamado Backquote (citação invertida, ou o
+nosso acento grave em português). É um quote que permite buracos,
+marcados pela vírgula.
+
+(defmacro mais20 (var)
+   `(+ ,var 20))   C-j
+
+(mais20 1000)   C-j
+
+(macroexpand-1 '(mais20 abacaxi)) C-j

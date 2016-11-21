@@ -1,0 +1,334 @@
+
+* A linguagem Racket
+
+Racket é Scheme. Há alguns anos, o ambiente de programação DrRacket era
+conhecido como DrScheme. Recentemente, por causa de algumas diferenças
+pontuais, eles decidiram mudar o nome da linguagem e do ambiente. 
+
+Lisp é uma família de linguagens que foram brotando umas das outras.
+Alterar a linguagem é natural em Lisp, daí essa variedade. Há dois grandes
+troncos na família Lisp, um deles é o Scheme, onde Racket se situa, o
+outro é o Common Lisp, de quem o Emacs Lisp está mais próximo.
+Clojure é um Lisp moderno que roda na Java Virtual Machine e adota
+ideias de Scheme e Common Lisp.
+
+Em suma, para efeitos práticos, estamos usando Scheme, e vamos chamá-lo de Lisp.
+
+* O interpretador Lisp e sua reação a números e símbolos
+
+Execute o ambiente de desenvolvimento DrRacket. A tela é dividida em duas
+partes. A parte de cima é chamada de "Definições" e deve conter funções
+em Lisp salvas em arquivo. A parte de baixo é o interpretador Lisp
+(mais precisamente o Read-Eval-Print-Loop, ou REPL; tecnicamente,
+o intepretador propriamente dito é o Eval).
+Para carregar definições no interpretador Lisp, acione o botão Executar.
+
+Por ora, não vamos usar definições; apenas o interpretador Lisp.
+
+Digite 3 <ENTER> no interpretador Lisp e observe o resultado.
+
+Depois de número, "símbolo" é o próximo conceito importante em Lisp.
+Por exemplo, "a" é um símbolo, "+" é um símbolo, "sqrt" é um símbolo.
+Porém, a importância de símbolos em Lisp reside em sua capacidade em
+serem substituídos por valores que estão vinculados a eles.
+
+E o interpretador Lisp quando vê um símbolo, busca logo substituí-lo pelo
+valor associado.
+
+Mas, você pode desligar o interpretador Lisp para obter o símbolo mesmo
+(não o valor associado a ele). Para isso, basta acrescentar um apóstrofo
+na frente do símbolo. Por exemplo,
+
+'a
+
+Se você digitar apenas a letra a, o interpretador vai reclamar que esse
+símbolo não teve ainda um valor associado. Experimente:
+
+a
+
+Agora, associe um valor a 'a.
+
+(define a 7)
+
+a
+
+'a
+
+* Pares, Listas e Expressões Simbólicas : a essência do Lisp
+
+Se pudéssemos enxergar um programa Lisp na memória, encontraríamos ali
+incontáveis "pares". Uma par é simplesmente a associação de dois ponteiros,
+para quaisquer possibilidades.
+
+'(3 . 5)
+
+'((a . b) . c)
+
+Pares são usados para implementar listas encadeadas. Listas em Lisp
+seguem o mesmo princípio das listas que já vimos em Haskell e Prolog:
+o primeiro componente do par é um elemento, e o segundo é uma outra lista
+(definição recursiva). No final, deve haver uma lista nula, simbolizada
+por '().
+
+'(3 . (4 . (5 . (6 . ()))))
+
+Essa forma de escrever uma lista é muito cansativa. Daí que Lisp traz um
+"syntatic sugar": '(3 4 5 6). Não é preciso escrever os pontos, nem a lista
+nula do final, isso já está subentendido.
+
+Listas podem conter outras listas. Listas podem conter símbolos. Essa
+forma generalizada de lista é também chamada de "expressão simbólica"
+(em inglês, "symbolic expression" ou "S-expression"), e é a única forma de
+combinar dados em Lisp. 
+
+'(a 3 (4 9 8) ((7 5) 1 b) d)
+
+* Data is Code
+
+Lisp é um linguagem homoicônica. Isso quer dizer que a sintaxe das
+estruturas de dados (listas) e a sintaxe dos programas (listas!) é
+a mesma !!!
+
+Uma lista como dado:
+'(+ 3 4 6 (* 8 4 10))
+
+Uma lista como programa (o interpretador só enxerga listas como programas):
+(+ 3 4 6 (* 8 4 10))
+
+Em outras palavras: o seu programa é uma estrutura de dados da linguagem!!
+É como se, em C, seu programa fosse um array de structs!! Se isso fosse
+possível, programar em C seria como escrever uma literal de array de
+um programa em C.
+
+A importância desse fato não deve ser subestimada. Lisp é muito flexível
+exatamente por causa dessa concepção unificadora. É uma medida de simplicidade
+de linguagem sem igual. Veremos a aplicação disso quando abordarmos macros.
+
+* Como o interpretador "devora" as listas-programas
+
+O interpretador é como um robô com um martelo: para ele tudo é prego,
+quer dizer, toda lista começa com uma função a ser executada, seguida
+de parâmetros.
+
+Repetindo:
+
+(FUNÇÃO PARAM1 PARAM2 PARAM3 (OUTRA-FUNÇÃO PARAM))
+
+A função interna é executada primeiro e substituída por um valor que
+passa a ser o PARAM4 no caso específico do exemplo acima.
+
+(add1 10)
+
+(add1 (add1 5))
+
+(+ 5 (add1 0) 12 -5 -12 (add1 -1))
+
+E quando a lista dentro do programa é dado e não programa? Use o apóstrofo.
+
+(length '(1 2 4))
+
+Experimente também
+
+(length (1 2 4))
+
+Ele reclama que não existe uma função chamada "1".
+
+* Na verdade, funções são funções, "special forms" ou macros
+
+Aquilo que ocupa o primeiro lugar da lista, e que o interpretador tenta
+executar é um símbolo. Um símbolo está ligado a algum valor, como vimos.
+O valor do símbolo pode ser uma função, uma "special form" ou uma macro.
+
+Funções são criadas em Lisp e podem ser definidas pelo usuário ou
+em bibliotecas.
+
+"Special forms" são "feitas em Assembly". Não são funções Lisp na verdade.
+Estão na base do Lisp. Sem elas, "as funções não funcionariam".
+O artigo original do Lisp, em 1960, era sobre as 7 "special forms"
+essenciais da primeira implementação Lisp.
+
+Um exemplo de "special form" é o quote ("quotation"=citação, ou "entre aspas").
+Digite:
+
+(quote a)
+
+Já vimos isso antes: é o apóstrofo. Sim, o apóstrofo é um "syntatic sugar"
+para a "special form" "quote".
+
+Notou a ligação. Citação ("quotation") se faz entre aspas, apóstrofos, ...
+daí o apóstrofo abrindo... e não se fecha para economizar digitação, pois
+é dispensável, já que há como definir onde termina a expressão que começa
+com o apóstrofo).
+
+(quote (+ 4 5 (* 3 1)))
+
+Macros serão vistas no final do tutorial.
+
+* Criando funções: a "special form" lambda
+
+Digite
+
+(lambda (x y) (+ 1 x (* 2 y)))
+
+Ela define uma função anônima que tem os parâmetros x e y e retorna
+o valor da expressão (+ 1 x (* 2 y)).
+
+Vamos usá-la ao mesmo tempo que a declaramos
+( (lambda (x y) (+ 1 x (* 2 y))) 0 10 )
+
+A primeira coisa que o interpretador encontra é a função, definida ali mesmo.
+Em seguida vêm os parâmetros: 0 é atribuído a x, e 10 é atribuído a y.
+Daí, ele calcula a expressão em lambda com esses valores.
+
+Essa não é a forma prática de trabalhar. Vamos armazenar a função num símbolo,
+com a "special form" "define".
+
+(define conta (lambda (x y) (+ 1 x (* 2 y))))
+
+Agora é só usar!
+
+(conta 0 10)
+
+O "+", o "*" em Lisp são funções (símbolos associados a funções) de bibliotecas,
+não fazem parte da linguagem.
+
+"define" tem um "syntatic sugar" que nos dispensa escrever o lambda:
+
+(define (conta2 x y)
+   (+ 1 x (* 2 y)))
+
+Ou seja, em geral:
+
+(define f (lambda (a b ...) corpo-de-f))  ~>  (define (f a b ...) corpo-de-f)
+
+No caso sem parâmetros: (define f (lambda () corpo)) ~> (define (f) corpo)
+
+* Explorando as bibliotecas
+
+Digite as sequências abaixo e observe os resultados.
+
+(Abra a documentação e consulte sobre as funções caso tenha alguma dúvida.
+Para isso, no DrRacket, acesse o menu Ajuda>Racket Documentation.
+Uma página html é aberta num navegador. Acesse o 2o link, "Racket Cheat Sheet".
+É um cartão de referência com as funções principais. Clique no nome para
+saber mais sobre a função. Use a busca na página html.
+Usaremos muito poucas funções desse cartão.)
+
+** Booleanos e condicionais
+
+Os dois valores lógicos têm literais especiais em Scheme--
+#t
+
+#f
+
+Operadores lógicos clássicos--
+(or #f #t)
+
+(and #f #t)
+
+(not #f)
+
+Predicados são funções que retornam #t ou #f. Em Scheme há essa convenção
+de dar nomes aos predicados terminado com a interrogação--
+(number? 3)
+
+(number? 'a)
+
+(symbol? 'a)
+
+Igualdade semântica ("as mesmas listas")--
+(equal? '(1 2 3) '(1 2 3))
+
+Igualdade de referência (endereço de memória)--
+(eq? '(1 2 3) '(1 2 3))
+
+A "special form" de condição--
+(if #t 'a 'b)
+
+(if #f 'a 'b)
+
+Aqui do jeito que se costuma usar. Não se perca nos parênteses.
+Todo o (and (> 3 2) (number? (+ 1 5 7))) é a condição.
+Todo o (add1 (+ 13 -4 12)) é o "then".
+Todo o (sub1 15) é o "else".
+(if (and (> 3 2) (number? (+ 1 5 7))) (add1 (+ 13 -4 12)) (sub1 5))
+
+** Listas
+
+Predicados para listas--
+(pair? 'a)
+
+(pair? '())
+
+(pair? '(1 2))
+
+(list? '(1 2))
+
+(list? '(1 . 2))
+
+(empty? '())
+
+(null? '())
+
+Construção de listas usada raramente--
+(list 1 2 'a)
+
+Construção de lista de verdade: o poderoso cons. Sim, o pai de todos os
+cons em todas as linguagens funcionais--
+(cons 'a '(1 b 3 c))
+
+(cons 7 '())
+
+(cons '(1 2) '(a b))
+
+Head & Tail... ops, "car" e "cdr" !
+"car" vem de "Content Address Register", algo como um EAX da máquina em que
+foi implementada a primeira geração de Lisps nos anos 1960.
+"cdr" é uma sigla similar. Como assim? Nomes de registradores? Entenderemos as razões!
+Alguns Lisps modernos trocam esses nomes por "first" e "rest" por exemplo.
+
+(car '(a b))
+
+(cdr '(a b c d))
+
+(car '((1 2 3) 4 5 6))
+
+(cdr '((1 2 3) 4 5 6))
+
+(cdr '(1))
+
+(car '())
+
+(cdr '())
+
+(car (cdr (car '((1 2 3) 4 5 6))))
+
+(cadar '((1 2 3) 4 5 6))
+
+(cadddr '(3 5 7 9 10))
+
+Ah! Eis uma razão para manter "car" e "cdr". O verdadeiro Lisper sabe não só
+escrever como também _pronunciar_ e _compreender a pronúncia_ dessas expressões:
+cdddddr !!
+
+Crie seus próprios acessos:
+
+(define (snd lista)
+   (car (cdr lista))
+
+(snd '(10 100 1000))
+
+** Switch
+
+(define nome 'lisp)
+
+(cond
+  [(equal? nome 'c) 'printf]
+  [(equal? nome 'pascal) 'writeln]
+  [(equal? nome 'haskell) 'putStrLn]
+  [else 'seilah])
+
+=====================
+
+PRONTO! Isso é tudo de que precisamos para fazer programas recursivos
+sobre listas em Lisp!

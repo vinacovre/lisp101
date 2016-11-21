@@ -1,0 +1,9 @@
+No dia 21 de novembro, no Lab. 1 do DEMAC, teremos uma aula-tutorial-avaliação sobre Lisp.
+
+O tutorial está dividido em 3 partes:
+
+- Uma breve apresentação da linguagem, que em parte já foi iniciada na aula antes da prova.
+
+- Uma parte de exercícios sobre recursão em listas, com os mesmos exercícios já vistos em outras linguagens.
+
+- Algumas curiosidades próprias do Lisp, como Macros.
