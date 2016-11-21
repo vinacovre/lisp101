@@ -1,0 +1,64 @@
+; Vinicius Covre de Assis
+; Exercícios de Lisp para entrega
+; Linguagens de Programação Não-Convencionais - LPNC
+; Ciência da Computação (Noturno) - Unesp - Rio Claro
+
+; Entregar exercícios A
+
+#lang racket
+
+; A.1 - Soma dos quadrados dos elementos de uma lista
+(define (soma-dos-quadrados l)
+  (if (null? l)
+    0
+    (+ (expt (car l) 2) (soma-dos-quadrados (cdr l)))))
+; (soma-dos-quadrados '(2 4 8)) >>> 4+16+64 = 84
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; A.2 - Map
+(define (f x)
+  (+ 7 (* 10 x)))
+
+(define (my-map fcn l)
+  (if (null? l)
+    '()
+    (cons (fcn (car l)) (my-map fcn (cdr l)))))
+; (my-map f '(0 5 9 20)) >>> (7 57 97 207)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; A.3 - os elementos nas posições pares
+
+(define (pares l)
+  (if (null? l)
+    '()
+    (if (null? (cdr l))
+      '()
+      (cons (car (cdr l)) (pares (cddr l))))))
+; (pares '(a b c d e f g)) >>> '(b d f)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; A.4 - Merge
+(define (merge l1 l2)
+  (if (and (null? l1) (null? l2))
+      '()
+      (if (null? l1)
+          l2
+          (if (null? l2)
+              l1
+              (if (< (car l1) (car l2))
+                (cons (car l1) (merge (cdr l1) l2))
+                (cons (car l2) (merge l1 (cdr l2))))))))
+; (merge '(1 10 11 20 23 35) '(2 3 8 15 16 29 30 31 35 40))
+; >>> '(1 2 3 8 10 11 15 16 20 23 29 30 31 35 40)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; A.5 - Fatorial
+(define (fatorial n)
+  (if (zero? n)
+    1
+    (* n (fatorial (sub1 n)))))
+; (fatorial 5) >>> 120
