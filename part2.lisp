@@ -27,7 +27,7 @@
 
 ;;;;;
 
-; ALTERNATE 
+; ALTERNATE
 ; % alternate([1,2,3,4],N). %>>> N = [2,1,4,3]
 ; alternate([],[]).
 ; alternate([H1,H2|T],[H2,H1|R]) :- alternate(T,R).
@@ -37,6 +37,13 @@
   (if (null? l)
     '()
   (cons (cons (car (cdr l)) (car l)) (alternate (cddr l)))))
+
+;;;;;
+
+; TAKE
+; (take1 3 '(1 2 3 4 5 6 7)) >>> (1 2 3  5 6 7)
+(define (take1 n l)
+  
 
 ;;;;;
 
